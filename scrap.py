@@ -5,8 +5,8 @@ from selenium.webdriver.firefox.options import Options
 options = Options()
 options.add_argument("--headless")
 
-#driver = webdriver.Firefox(firefox_options=options, executable_path="D:\projects\Diploma\Parsing\geckodriver.exe")
-driver = webdriver.Firefox(executable_path="D:\projects\Diploma\Parsing\geckodriver.exe")
+driver = webdriver.Firefox(firefox_options=options, executable_path="D:\projects\Diploma\Parsing\geckodriver.exe") #No GUI
+#driver = webdriver.Firefox(executable_path="D:\projects\Diploma\Parsing\geckodriver.exe")                         #GUI
 
 driver.get('https://devpost.com/hackathons')
 
@@ -56,4 +56,20 @@ for row in rows:
     else:
         time.append("")
 
-print 1
+file = open("data.json", "w")
+file.write('{\n\t"items":[\n')
+i = 0
+while 1:
+    file.write('\t\t{\n')
+    file.write('\t\t\t"title":' + '"' + titles[i].encode('ascii', 'ignore') + '"' + ',\n')
+    file.write('\t\t\t"location":' + '"' + locations[i].encode('ascii', 'ignore') + '"' + ',\n')
+    file.write('\t\t\t"description":' + '"' + descriptions[i].encode('ascii', 'ignore') + '"' + ',\n')
+    file.write('\t\t\t"time":' + '"' + time[i].encode('ascii', 'ignore') + '"\n')
+    if i + 1 < len(rows):
+        file.write("\t\t},\n")
+    else:
+        file.write("\t\t}\n")
+        break
+    i = i + 1
+file.write("\t]\n}")
+file.close()
