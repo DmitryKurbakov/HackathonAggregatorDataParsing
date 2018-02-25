@@ -1,6 +1,10 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
+import dbtools
+
+class Object(object):
+    pass
 
 options = Options()
 options.add_argument("--headless")
@@ -25,11 +29,14 @@ soup = BeautifulSoup(html, 'html.parser')
 
 rows = list(soup.select("#container > div > div > div > div.results > div.challenge-results > div"))
 
+print "got rows"
+
 titles = []
 locations = []
 preview = []
 descriptions = []
 time = []
+refs = []
 
 for row in rows:
     temp_title = row.find("h2", {"class": "title"})
@@ -70,21 +77,55 @@ for row in rows:
     else:
         time.append("")
 
-file = open("data1.json", "w")
-file.write('{\n\t"items":[\n')
+    refs.append(temp_ref)
+
+print "got data"
+# file = open("data1.json", "w")
+# file.write('{\n\t"items":[\n')
+
 i = 0
-while 1:
-    file.write('\t\t{\n')
-    file.write('\t\t\t"title":' + '"' + titles[i].encode('ascii', 'ignore') + '"' + ',\n')
-    file.write('\t\t\t"location":' + '"' + locations[i].encode('ascii', 'ignore') + '"' + ',\n')
-    file.write('\t\t\t"preview":' + '"' + preview[i].encode('ascii', 'ignore') + '"' + ',\n')
-    file.write('\t\t\t"description:":' + '"' + descriptions[i].encode('ascii', 'ignore') + '"' ',\n')
-    file.write('\t\t\t"time":' + '"' + time[i].encode('ascii', 'ignore') + '"\n')
-    if i + 1 < len(rows):
-        file.write("\t\t},\n")
-    else:
-        file.write("\t\t}\n")
-        break
+data = [None] * len(titles)
+
+while i < len(data):
+
+    data[i] = Object()
+    data[i].title = titles[i].encode('ascii', 'ignore')
+    data[i].location = locations[i].encode('ascii', 'ignore')
+    data[i].preview = preview[i].encode('ascii', 'ignore')
+    data[i].description = descriptions[i].encode('ascii', 'ignore')
+    data[i].time = time[i].encode('ascii', 'ignore')
+    data[i].ref = refs[i]
+
     i = i + 1
-file.write("\t]\n}")
-file.close()
+
+dbtools.insert_data(data)
+
+
+print "transferred data to database handler"
+# i = 0
+#
+# while 1:
+#     temp = dbtools.Source(title=titles[i].encode('ascii', 'ignore'), location=locations[i].encode('ascii', 'ignore'), preview=preview[i].encode('ascii', 'ignore'),
+#                           description=descriptions[i].encode('ascii', 'ignore'), time=time[i].encode('ascii', 'ignore'))
+#
+#     if i+1 >= len(rows):
+#         break
+#     i = i + 1
+#
+#     temp.save()
+#     # file.write('\t\t{\n')
+#     # file.write('\t\t\t"title":' + '"' + titles[i].encode('ascii', 'ignore') + '"' + ',\n')
+#     # file.write('\t\t\t"location":' + '"' + locations[i].encode('ascii', 'ignore') + '"' + ',\n')
+#     # file.write('\t\t\t"preview":' + '"' + preview[i].encode('ascii', 'ignore') + '"' + ',\n')
+#     # file.write('\t\t\t"description:":' + '"' + descriptions[i].encode('ascii', 'ignore') + '"' ',\n')
+#     # file.write('\t\t\t"time":' + '"' + time[i].encode('ascii', 'ignore') + '"\n')
+#     #if i + 1 < len(rows):
+#     #     file.write("\t\t},\n")
+#     # else:
+#     #     file.write("\t\t}\n")
+#     #     break
+#     #i = i + 1
+# # file.write("\t]\n}")
+# # file.close()
+
+
