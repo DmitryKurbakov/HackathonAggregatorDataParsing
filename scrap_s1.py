@@ -37,7 +37,7 @@ class DataParsing:
         titles = []
         locations = []
         preview = []
-        descriptions = []
+        # descriptions = []
         time = []
         refs = []
         source = "https://devpost.com/hackathons"
@@ -127,6 +127,7 @@ class DataParsing:
         descriptions = []
         time = []
         refs = []
+        source = url
 
         for row in rows:
             temp_title = row.find("h3", {"itemprop": "name"})
@@ -138,35 +139,35 @@ class DataParsing:
 
             temp_ref = row.find("a", href=True)['href'].encode('ascii', 'ignore')
 
-            try:
-                self.driver.get(temp_ref)
-            except:
-                continue
-
-            temp_page = self.driver.page_source
-            temp_soup = BeautifulSoup(temp_page, 'html.parser')
-
-            temp_description = temp_soup.find("body")
+            # try:
+            #     self.driver.get(temp_ref)
+            # except:
+            #     continue
+            #
+            # temp_page = self.driver.page_source
+            # temp_soup = BeautifulSoup(temp_page, 'html.parser')
+            #
+            # temp_description = temp_soup.find("body")
 
             if hasattr(temp_title, "text"):
-                titles.append(temp_title.text.strip())
+                titles.append(temp_title.text.strip().encode('ascii', 'ignore'))
             else:
                 titles.append("")
 
             if hasattr(temp_location, "text"):
-                locations.append(temp_location.text.strip())
+                locations.append(temp_location.text.strip().encode('ascii', 'ignore'))
             else:
                 locations.append("")
 
             if hasattr(temp_preview, "text"):
-                preview.append(temp_preview.text.strip())
+                preview.append(temp_preview.text.strip().encode('ascii', 'ignore'))
             else:
                 preview.append("")
 
-            if hasattr(temp_description, "text"):
-                descriptions.append(temp_description.text.replace("\n", "").replace('"', '').strip())
-            else:
-                descriptions.append("")
+            # if hasattr(temp_description, "text"):
+            #     descriptions.append(temp_description.text.replace("\n", "").replace('"', '').strip().encode('ascii', 'ignore'))
+            # else:
+            #     descriptions.append("")
 
             time.append(temp_time)
             refs.append(temp_ref)
@@ -176,12 +177,14 @@ class DataParsing:
 
         while i < len(data):
             data[i] = Object()
-            data[i].title = titles[i].encode('ascii', 'ignore')
-            data[i].location = locations[i].encode('ascii', 'ignore')
-            data[i].preview = preview[i].encode('ascii', 'ignore')
-            data[i].description = descriptions[i].encode('ascii', 'ignore')
-            data[i].time = time[i].encode('ascii', 'ignore')
+            data[i].title = titles[i]
+            data[i].location = locations[i]
+            data[i].preview = preview[i]
+            # data[i].description = descriptions[i]
+            data[i].time = time[i]
             data[i].ref = refs[i]
+            data[i].area = ""
+            data[i].source = source
 
             i = i + 1
 

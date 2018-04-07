@@ -57,8 +57,8 @@ def get_two_digit_day(d):
     return '{:02d}'.format(temp.day)
 
 
-a = format_date_source_0('Apr 6  7, 2018')
-b = format_date_source_0('Apr 13  14, 2018')
-c = format_date_source_0('Apr 7, 2018')
-d = format_date_source_0('Mar 19  Jun 1, 2018')
-i = 0
+# a = format_date_source_0('Apr 6  7, 2018')
+# b = format_date_source_0('Apr 13  14, 2018')
+# c = format_date_source_0('Apr 7, 2018')
+# d = format_date_source_0('Mar 19  Jun 1, 2018')
+# i = 0
