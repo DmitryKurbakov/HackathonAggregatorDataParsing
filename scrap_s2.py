@@ -23,7 +23,7 @@ def read_info(url):
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
 
-    rows = list(soup.find_all("div", {"class": "event-wrapper"}))
+    rows = list(soup.find_all("div", {"class": "t527__col t-col t-col_4 t-align_left t527__col-mobstyle"}))
 
     titles = []
     locations = []
@@ -33,7 +33,12 @@ def read_info(url):
     refs = []
 
     for row in rows:
-        temp_title = row.find("h3", {"itemprop": "name"})
+        temp_string = row.find("div", {"class": "t527__persdescr t-descr t-descr_xxs t527__bottommargin_lg"})
+
+        if hasattr(temp_string, "text"):
+            i=0
+
+        temp_title = row.find("div", {"class": "t527__persname t-name t-name_lg t527__bottommargin_sm"})
         temp_location = row.find("div", {"itemprop": "address"})
         temp_preview = ""#row.find("p", {"class": "challenge-description"})
 
@@ -75,21 +80,21 @@ def read_info(url):
         refs.append(temp_ref)
 
     i = 0
-    data = [None] * len(titles)
+    # data = [None] * len(titles)
+    #
+    # while i < len(data):
+    #
+    #     data[i] = Object()
+    #     data[i].title = titles[i].encode('ascii', 'ignore')
+    #     data[i].location = locations[i].encode('ascii', 'ignore')
+    #     data[i].preview = preview[i].encode('ascii', 'ignore')
+    #     data[i].description = descriptions[i].encode('ascii', 'ignore')
+    #     data[i].time = time[i].encode('ascii', 'ignore')
+    #     data[i].ref = refs[i]
+    #
+    #     i = i + 1
+    #
+    # dbtools.insert_data(data)
 
-    while i < len(data):
 
-        data[i] = Object()
-        data[i].title = titles[i].encode('ascii', 'ignore')
-        data[i].location = locations[i].encode('ascii', 'ignore')
-        data[i].preview = preview[i].encode('ascii', 'ignore')
-        data[i].description = descriptions[i].encode('ascii', 'ignore')
-        data[i].time = time[i].encode('ascii', 'ignore')
-        data[i].ref = refs[i]
-
-        i = i + 1
-
-    dbtools.insert_data(data)
-
-
-read_info("https://mlh.io/seasons/na-2018/events")
+read_info("http://www.xn--80aa3anexr8c.xn--p1ai/")

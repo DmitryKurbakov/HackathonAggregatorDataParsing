@@ -25,10 +25,10 @@ class Source(Document):
     title = StringField(required=True)
     location = StringField()
     preview = StringField()
-    description = StringField()
     time = StringField()
-    ref = URLField()
-
+    ref = StringField()
+    area = StringField()
+    source = StringField()
 
 def insert_data(data):
     client = MongoClient()
@@ -44,8 +44,9 @@ def insert_data(data):
             temp = Source(title=data[i].title,
                           location=data[i].location,
                           preview=data[i].preview,
-                          description=data[i].description,
                           time=data[i].time,
-                          ref=data[i].ref)
+                          ref=data[i].ref,
+                          area=data[i].area,
+                          source=data[i].source)
             temp.save()
         i = i + 1
