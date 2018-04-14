@@ -17,6 +17,9 @@
 
 from mongoengine import *
 from pymongo import MongoClient
+import googlemaps
+import re
+import api
 
 connect('HackathonAggregator')
 
@@ -29,6 +32,8 @@ class Source(Document):
     ref = StringField()
     area = StringField()
     source = StringField()
+    geocode = StringField()
+
 
 def insert_data(data):
     client = MongoClient()
@@ -50,3 +55,28 @@ def insert_data(data):
                           source=data[i].source)
             temp.save()
         i = i + 1
+
+
+def set_geocode():
+    client = MongoClient()
+
+    db = client.HackathonAggregator
+    sources = db.source
+
+    gmaps = googlemaps.Client(key=api.gkey)
+
+    cursor = sources.find({})
+    for doc in cursor:
+        try:
+            temp = doc.get("location")
+            if temp != "" and (doc.get('geocode') == 1.0 or doc.get('geocode') == ""):
+
+                geo = gmaps.geocode(re.sub(r'\s+', ' ', doc.get("location")))
+
+                print(geo)
+                sources.update({"_id": doc.get("_id")}, {"$set": {'geocode': geo}})
+        except:
+            continue
+
+
+
