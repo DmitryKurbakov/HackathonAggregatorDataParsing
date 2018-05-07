@@ -3,9 +3,11 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 import dbtools
 import helpers
+import time as timeout
 
 class Object(object):
     pass
+
 
 class DataParsing:
     def __init__(self):
@@ -13,14 +15,17 @@ class DataParsing:
         self.options.add_argument("--headless")
 
         #self.driver = webdriver.Firefox(firefox_options=self.options, executable_path="D:\projects\Diploma\Parsing\geckodriver.exe")  # No GUI
-        self.driver = webdriver.Firefox(executable_path="D:\projects\Diploma\Parsing\geckodriver.exe")                         #GUI
+        self.driver = webdriver.Chrome("/Users/dmitry/PycharmProjects/HackathonAggregatorDataParsing/chromedriver")                         #GUI
 
     def scrap_source0(self):
         self.driver.get('https://devpost.com/hackathons')
 
-        el = self.driver.find_element_by_css_selector(".load-more > a:nth-child(1)")
+        el = self.driver.find_element_by_xpath('//*[@id="container"]/div/div/div/div[1]/div[2]/a')
         while el.is_displayed():
+            if el.text == "":
+                break
             el.click()
+            timeout.sleep(1)
 
         html = self.driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
@@ -32,7 +37,7 @@ class DataParsing:
 
         rows = list(soup.select("#container > div > div > div > div.results > div.challenge-results > div"))
 
-        print "got rows"
+        print("got rows")
 
         titles = []
         locations = []
@@ -83,7 +88,7 @@ class DataParsing:
 
             refs.append(temp_ref)
 
-        print "got data"
+        print("got data")
         # file = open("data1.json", "w")
         # file.write('{\n\t"items":[\n')
 
@@ -92,7 +97,7 @@ class DataParsing:
 
         while i < len(data):
             data[i] = Object()
-            data[i].title = titles[i]
+            data[i].title = titles[i].decode("utf-8")
             data[i].location = locations[i]
             data[i].preview = preview[i]
             #data[i].description = descriptions[i].encode('ascii', 'ignore')
@@ -105,7 +110,7 @@ class DataParsing:
 
         dbtools.insert_data(data)
 
-        print "transferred data to database handler"
+        print("transferred data to database handler")
 
     def scrap_source1(self):
         self.read_info("https://mlh.io/seasons/na-2018/events")

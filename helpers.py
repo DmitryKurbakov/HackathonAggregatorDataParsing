@@ -2,8 +2,10 @@ from dictionaries import month_numbers
 import re
 import datetime
 
+
 def format_date_source_0(t):
 
+    t = t.decode('utf-8')
     m0 = ''
     m1 = ''
 
