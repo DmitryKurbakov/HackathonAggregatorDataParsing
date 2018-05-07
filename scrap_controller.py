@@ -3,5 +3,6 @@ import dbtools
 
 dp = DataParsing()
 dp.scrap_source0()
-#dp.scrap_source1()
+dp.scrap_source1()
+dp.scrap_source2()
 dbtools.set_geocode()

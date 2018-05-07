@@ -1,9 +1,12 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
 import dbtools
 import helpers
 import time as timeout
+
 
 class Object(object):
     pass
@@ -30,11 +33,6 @@ class DataParsing:
         html = self.driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
 
-        # titles = list(soup.findAll("h2", {"class": "title"}))
-        # locations = list(soup.findAll("p", {"class": "challenge-location"}))
-        # descriptions = list(soup.findAll("p", {"class": "challenge-description"}))
-        # time = list(soup.findAll("span", {"class": "value date-range"}))
-
         rows = list(soup.select("#container > div > div > div > div.results > div.challenge-results > div"))
 
         print("got rows")
@@ -54,12 +52,6 @@ class DataParsing:
             temp_time = row.find("span", {"class": "value date-range"})
 
             temp_ref = row.find("a", href=True)['href'].encode('ascii', 'ignore')
-            #self.driver.get(temp_ref)
-
-            # temp_page = self.driver.page_source
-            # temp_soup = BeautifulSoup(temp_page, 'html.parser')
-            #
-            # temp_description = temp_soup.find("article", {"id": "challenge-description"})
 
             if hasattr(temp_title, "text"):
                 titles.append(temp_title.text.strip().encode('ascii', 'ignore'))
@@ -76,21 +68,14 @@ class DataParsing:
             else:
                 preview.append("")
 
-            # if hasattr(temp_description, "text"):
-            #     descriptions.append(temp_description.text.replace("\n", "").replace('"', '').strip())
-            # else:
-            #     descriptions.append("")
-
             if hasattr(temp_time, "text"):
-                time.append(helpers.format_date_source_0(temp_time.text.strip().encode('ascii', 'ignore')))
+                time.append(helpers.format_date(temp_time.text.strip().encode('ascii', 'ignore')))
             else:
                 time.append("")
 
             refs.append(temp_ref)
 
         print("got data")
-        # file = open("data1.json", "w")
-        # file.write('{\n\t"items":[\n')
 
         i = 0
         data = [None] * len(titles)
@@ -144,16 +129,6 @@ class DataParsing:
 
             temp_ref = row.find("a", href=True)['href'].encode('ascii', 'ignore')
 
-            # try:
-            #     self.driver.get(temp_ref)
-            # except:
-            #     continue
-            #
-            # temp_page = self.driver.page_source
-            # temp_soup = BeautifulSoup(temp_page, 'html.parser')
-            #
-            # temp_description = temp_soup.find("body")
-
             if hasattr(temp_title, "text"):
                 titles.append(temp_title.text.strip().encode('ascii', 'ignore'))
             else:
@@ -169,11 +144,6 @@ class DataParsing:
             else:
                 preview.append("")
 
-            # if hasattr(temp_description, "text"):
-            #     descriptions.append(temp_description.text.replace("\n", "").replace('"', '').strip().encode('ascii', 'ignore'))
-            # else:
-            #     descriptions.append("")
-
             time.append(temp_time)
             refs.append(temp_ref)
 
@@ -182,7 +152,7 @@ class DataParsing:
 
         while i < len(data):
             data[i] = Object()
-            data[i].title = titles[i]
+            data[i].title = titles[i].decode("utf-8")
             data[i].location = locations[i]
             data[i].preview = preview[i]
             # data[i].description = descriptions[i]
@@ -195,30 +165,87 @@ class DataParsing:
 
         dbtools.insert_data(data)
 
-# i = 0
-#
-# while 1:
-#     temp = dbtools.Source(title=titles[i].encode('ascii', 'ignore'), location=locations[i].encode('ascii', 'ignore'), preview=preview[i].encode('ascii', 'ignore'),
-#                           description=descriptions[i].encode('ascii', 'ignore'), time=time[i].encode('ascii', 'ignore'))
-#
-#     if i+1 >= len(rows):
-#         break
-#     i = i + 1
-#
-#     temp.save()
-#     # file.write('\t\t{\n')
-#     # file.write('\t\t\t"title":' + '"' + titles[i].encode('ascii', 'ignore') + '"' + ',\n')
-#     # file.write('\t\t\t"location":' + '"' + locations[i].encode('ascii', 'ignore') + '"' + ',\n')
-#     # file.write('\t\t\t"preview":' + '"' + preview[i].encode('ascii', 'ignore') + '"' + ',\n')
-#     # file.write('\t\t\t"description:":' + '"' + descriptions[i].encode('ascii', 'ignore') + '"' ',\n')
-#     # file.write('\t\t\t"time":' + '"' + time[i].encode('ascii', 'ignore') + '"\n')
-#     #if i + 1 < len(rows):
-#     #     file.write("\t\t},\n")
-#     # else:
-#     #     file.write("\t\t}\n")
-#     #     break
-#     #i = i + 1
-# # file.write("\t]\n}")
-# # file.close()
+    def scrap_source2(self):
+        self.driver.get('https://hackevents.co/hackathons')
+
+        html = self.driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        rows = []
+        #rows = list(soup.select('#main > div.hackathons > div > div'))
+
+        while True:
+            temp_rows = list(soup.select('#main > div.hackathons > div > div'))
+            for x in temp_rows:
+                rows.append(x)
+
+            el = self.driver.find_elements_by_css_selector('#main > div.hackathons > ul > li.next_page > a')
+            if el.__len__() != 1:
+                break
+            el[0].click()
+            timeout.sleep(2)
+            self.driver.get(self.driver.current_url)
+            html = self.driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
 
 
+            #rows = list(soup.select("#container > div > div > div > div.results > div.challenge-results > div"))
+
+        print("got rows")
+
+        titles = []
+        locations = []
+        preview = []
+        # descriptions = []
+        time = []
+        refs = []
+        source = "https://hackevents.co/hackathons"
+
+        for row in rows:
+            temp_title = row.find("a", {"class": "title"})
+            city = row.find("span", {"class": "city"}).text
+            country = row.find("span", {"class": "country"}).text
+            temp_location = city + ', ' + country
+            temp_preview = ""
+            temp_time = row.find("span", {"class": "info-date"})
+
+            temp_ref = row.find("a", {"class": "title"}, href=True)['href'].encode('ascii', 'ignore').decode('utf-8')
+
+            if hasattr(temp_title, "text"):
+                titles.append(temp_title.text.strip().encode('ascii', 'ignore'))
+            else:
+                titles.append("")
+
+            if hasattr(temp_preview, "text"):
+                preview.append(temp_preview.text.strip().encode('ascii', 'ignore'))
+            else:
+                preview.append("")
+
+            if hasattr(temp_time, "text"):
+                time.append(helpers.format_date_source3(temp_time.text.strip().encode('ascii', 'ignore')))
+            else:
+                time.append("")
+
+            refs.append('https://hackevents.co' + temp_ref)
+            locations.append(temp_location.strip().encode('ascii', 'ignore'))
+
+        print("got data")
+
+        i = 0
+        data = [None] * len(titles)
+
+        while i < len(data):
+            data[i] = Object()
+            data[i].title = titles[i].decode("utf-8")
+            data[i].location = locations[i].decode("utf-8")
+            data[i].preview = preview[i]
+            # data[i].description = descriptions[i].encode('ascii', 'ignore')
+            data[i].time = time[i]
+            data[i].ref = refs[i]
+            data[i].area = ""
+            data[i].source = source
+
+            i = i + 1
+
+        dbtools.insert_data(data)
+
+        print("transferred data to database handler")

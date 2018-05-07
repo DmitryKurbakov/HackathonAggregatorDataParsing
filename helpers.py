@@ -3,7 +3,7 @@ import re
 import datetime
 
 
-def format_date_source_0(t):
+def format_date(t):
 
     t = t.decode('utf-8')
     m0 = ''
@@ -50,13 +50,48 @@ def format_date_source_0(t):
                     get_two_digit_day(match2.group(4)))
 
 
+def format_date_source3(t):
+
+    t = t.decode('utf-8')
+    t = "".join(t.split())
+
+    match0 = re.compile('(\d+)-(\d+)(\w+)').match(t)
+
+    if t == '':
+        return t
+    for m in month_numbers.keys():
+        if match0:
+            if m in match0.group(3).lower():
+                m0 = get_month_number(match0.group(3))
+                if int(match0.group(1)) > int(match0.group(2)):
+                    m0 = '{}'.format(int(m0) - 1)
+                s = '{}-{}-{}-{}-{}-{}'.format(
+                    '2018',
+                    get_two_digit_month(m0),
+                    get_two_digit_day(match0.group(1)),
+                    '2018',
+                    get_month_number(match0.group(3)),
+                    get_two_digit_day(match0.group(2)))
+                return s
+
+
 def get_month_number(m):
     return month_numbers.get(m.lower(), '')
 
 
 def get_two_digit_day(d):
-    temp = datetime.date(2017, 10, int(d))
+    int_d = int(d)
+    temp = datetime.date(2017, 10, int_d)
     return '{:02d}'.format(temp.day)
+
+
+def get_two_digit_month(m):
+    int_m = int(m)
+    temp = datetime.date(2017, int_m, 1)
+    return '{:02d}'.format(temp.month)
+
+
+
 
 
 # a = format_date_source_0('Apr 6  7, 2018')
