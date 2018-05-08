@@ -1,4 +1,4 @@
-from scrap_s1 import DataParsing
+from scrap_sources import DataParsing
 import dbtools
 
 dp = DataParsing()
