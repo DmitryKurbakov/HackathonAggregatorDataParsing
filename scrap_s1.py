@@ -221,7 +221,7 @@ class DataParsing:
                 preview.append("")
 
             if hasattr(temp_time, "text"):
-                time.append(helpers.format_date_source3(temp_time.text.strip().encode('ascii', 'ignore')))
+                time.append(helpers.format_date_source2(temp_time.text.strip().encode('ascii', 'ignore')))
             else:
                 time.append("")
 
@@ -241,6 +241,82 @@ class DataParsing:
             # data[i].description = descriptions[i].encode('ascii', 'ignore')
             data[i].time = time[i]
             data[i].ref = refs[i]
+            data[i].area = ""
+            data[i].source = source
+
+            i = i + 1
+
+        dbtools.insert_data(data)
+
+        print("transferred data to database handler")
+
+    def scrap_source3(self):
+        self.driver.get('https://rb.ru/list/hack-spring/')
+
+        html = self.driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        te = soup.select('#post-text')
+        temp_rows = list(te[0].contents)
+        rows = []
+
+        for row in temp_rows:
+            if temp_rows.index(row) + 2 < temp_rows.__len__():
+                if row.name == 'h4' and temp_rows[temp_rows.index(row) + 2].name == 'p' and row.text != '':
+                    rows.append(row)
+                    rows.append(temp_rows[temp_rows.index(row) + 2])
+
+            #rows = list(soup.select("#container > div > div > div > div.results > div.challenge-results > div"))
+
+        print("got rows")
+
+        titles = []
+        locations = []
+        preview = []
+        # descriptions = []
+        time = []
+        refs = []
+        source = "https://rb.ru/list/hack-spring/"
+
+        i = 0
+        while i < len(rows) - 1:
+            temp_title = rows[i].text
+            temp_ref = rows[i].find("a", href=True)
+
+            titles.append(temp_title.strip())
+            refs.append(temp_ref)
+            i += 2
+
+        i = 1
+        while i < len(rows):
+            strong_text = ''
+            strong_texts = rows[i].find_all('strong')
+            for s in strong_texts:
+                if s.text != '':
+                    strong_text = s.text
+
+            date_and_location = helpers.format_date_and_location_source3(strong_text)
+            temp_time = date_and_location['date']
+            temp_location = date_and_location['location']
+            temp_preview = rows[i].text
+
+            time.append(temp_time)
+            locations.append(temp_location)
+            preview.append(temp_preview)
+            i += 2
+
+        print("got data")
+
+        i = 0
+        data = [None] * len(titles)
+
+        while i < len(data):
+            data[i] = Object()
+            data[i].title = titles[i]
+            data[i].location = locations[i]
+            data[i].preview = preview[i]
+            # data[i].description = descriptions[i].encode('ascii', 'ignore')
+            data[i].time = time[i]
+            data[i].ref = str(refs[i])
             data[i].area = ""
             data[i].source = source
 

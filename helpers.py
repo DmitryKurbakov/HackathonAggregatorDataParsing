@@ -50,7 +50,7 @@ def format_date(t):
                     get_two_digit_day(match2.group(4)))
 
 
-def format_date_source3(t):
+def format_date_source2(t):
 
     t = t.decode('utf-8')
     t = "".join(t.split())
@@ -74,6 +74,55 @@ def format_date_source3(t):
                     get_two_digit_day(match0.group(2)))
                 return s
 
+
+def format_date_and_location_source3(t):
+
+    match0 = re.compile('(\d+)\s\w+\s(\d+)\s(\w+)\s\w+\s(\D+)').search(t)
+    match1 = re.compile(r'(\d+)\s(\w+)\s\w+\s(\d+)\s(\w+)\s\w+\s(\D+)').search(t)
+    match2 = re.compile(r'(\d+)\s(\w+)\s\w+\s(\D+)').match(t)
+
+    if t == '':
+        return t
+    for m in month_numbers.keys():
+        if match0:
+            if m in match0.group(3).lower():
+                return {
+                    'date':
+                        '{}-{}-{}-{}-{}-{}'.format(
+                    '2018',
+                    get_month_number(match0.group(3)),
+                    get_two_digit_day(match0.group(1)),
+                    '2018',
+                    get_month_number(match0.group(3)),
+                    get_two_digit_day(match0.group(2))),
+                    'location': match0.group(4)
+                }
+        if match1:
+            if m in match1.group(2).lower():
+                return{
+                    'date':
+                        '{}-{}-{}-{}-{}-{}'.format(
+                    '2018',
+                    get_month_number(match1.group(2)),
+                    get_two_digit_day(match1.group(1)),
+                    '2018',
+                    get_month_number(match1.group(4)),
+                    get_two_digit_day(match1.group(3))),
+                    'location': match1.group(5)
+                }
+        if match2:
+            if m in match2.group(2).lower():
+                return{
+                    'date':
+                        '{}-{}-{}-{}-{}-{}'.format(
+                    '2018',
+                    get_month_number(match2.group(2)),
+                    get_two_digit_day(match2.group(1)),
+                    '2018',
+                    get_month_number(match2.group(2)),
+                    get_two_digit_day(match2.group(1))),
+                    'location': match2.group(3)
+                }
 
 def get_month_number(m):
     return month_numbers.get(m.lower(), '')
