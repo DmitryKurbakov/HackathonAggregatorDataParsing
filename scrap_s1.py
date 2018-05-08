@@ -280,7 +280,7 @@ class DataParsing:
         i = 0
         while i < len(rows) - 1:
             temp_title = rows[i].text
-            temp_ref = rows[i].find("a", href=True)
+            temp_ref = rows[i].find("a", href=True)['href']
 
             titles.append(temp_title.strip())
             refs.append(temp_ref)
