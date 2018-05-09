@@ -4,27 +4,27 @@ import googlemaps
 import re
 import api
 import pymongo
-
-
-MONGO_HOST = "185.235.129.54"
-MONGO_DB = "HackathonAggregator"
-MONGO_USER = "root"
-MONGO_PASS = "Ucb4GJxmv5Pr"
+from pymongo import errors
+import time
+import urllib
+from bs4 import BeautifulSoup
+import urllib.request
 
 server = SSHTunnelForwarder(
-    MONGO_HOST,
-    ssh_username=MONGO_USER,
-    ssh_password=MONGO_PASS,
+    api.MONGO_HOST,
+    ssh_username=api.MONGO_USER,
+    ssh_password=api.MONGO_PASS,
     remote_bind_address=('localhost', 27017)
 )
 
 server.start()
 
 connect(
-    db=MONGO_DB,
+    db=api.MONGO_DB,
     host='localhost',
     port=server.local_bind_port
 )
+
 
 class Source(Document):
 
@@ -33,16 +33,15 @@ class Source(Document):
     preview = StringField()
     time = StringField()
     ref = StringField()
-    area = StringField()
+    area = ListField()
     source = StringField()
     geocode = StringField()
 
 
 def insert_data(data):
 
-    server.start()
     client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
-    db = client[MONGO_DB]
+    db = client[api.MONGO_DB]
 
     sources = db.source
 
@@ -57,18 +56,17 @@ def insert_data(data):
                           preview=data[i].preview,
                           time=data[i].time,
                           ref=data[i].ref,
-                          area=data[i].area,
+                          area=[],
                           source=data[i].source,
                           geocode="")
             temp.save()
         i = i + 1
 
+
 def set_geocode():
 
-    server.start()
-
     client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
-    db = client[MONGO_DB]
+    db = client[api.MONGO_DB]
 
     sources = db.source
 
@@ -89,5 +87,57 @@ def set_geocode():
         except:
             continue
 
-    server.stop()
 
+def get_text_for_type_definition():
+    t0 = time.time()
+
+    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
+    db = client[api.MONGO_DB]
+    sources = db.source
+
+    text = []
+    cursor = sources.find({})
+    i = 0
+    for doc in cursor:
+        # if i == 10:
+        #     break
+        url = doc.get('ref')
+        try:
+            temp = doc.get("area")
+            if len(temp) == 0:
+                page = urllib.request.urlopen(url).read()
+                soup = BeautifulSoup(page)
+
+                text.append(
+                    {
+                        'text': '{} {} {}'.format(doc.get('title'), doc.get('preview'), soup.text).lower(),
+                        'id': doc.get("_id")
+                    })
+                print(str(i) + ':\t' + 'get_text_for_type_definition-url: ' + url + '\tok')
+        except:
+            print(url + '\tfail')
+            text.append(
+                {
+                    'text': '{} {}'.format(doc.get('title'), doc.get('preview')).lower(),
+                    'id': doc.get("_id")
+                })
+            continue
+        i += 1
+    t1 = time.time()
+
+    print('get_text_for_type_definition: {}'.format(str(t1 - t0)))
+    return text
+
+
+def set_areas_for_document(id, areas):
+    try:
+        client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
+        db = client[api.MONGO_DB]
+        sources = db.source
+
+        print('areas for id: {} are: {}\ntransferred to database'.format(id, areas))
+        sources.update({"_id": id}, {"$set": {'area': areas}})
+    except pymongo.errors.AutoReconnect:
+        print('Mongo reconnect...')
+        time.sleep(30)
+        server.restart()

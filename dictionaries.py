@@ -50,3 +50,34 @@ month_numbers = {
     'декабрь': '12',
     'декабря': '12'
 }
+
+keywords_in_type = \
+    [
+        ['Blockchain', 'AI', 'VR/AR', 'Games', 'IT', 'Design', 'Education', 'Bio', 'Management', 'Economy', 'Media', 'Healthcare', 'Hardware'],
+        [
+            [
+                'blockchain', 'bitcoin', 'bitcoins', 'coinbase', 'ethereum', ' litecoin', 'cryptocurrency',
+                'блокчейн',  'криптовалют', 'биткоин'
+            ],
+            [
+                'machine learning', 'data science', 'artificial intelligence',
+                'машинное обучение', 'машинного обучения', 'искусственный интеллект',
+                'искусственного интеллекта', 'искусственному интеллекту'
+            ],
+            [
+                'virtual reality', 'augmented reality',
+                'виртуальная реальность'
+            ],
+            ['games'],
+            ['code', 'engineering', 'software', 'applic', 'program', 'develop', 'engin'],
+            ['draw', 'drawing'],
+            ['student', 'study', 'education', 'college', 'university'],
+            ['biolog', 'bioinform'],
+            ['management', 'entrepren', 'business'],
+            ['economy'],
+            [],
+            ['health'],
+            ['hardware']
+        ]
+]
+

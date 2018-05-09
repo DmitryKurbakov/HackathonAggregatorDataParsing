@@ -140,7 +140,12 @@ def get_two_digit_month(m):
     return '{:02d}'.format(temp.month)
 
 
+def get_list_by_list_object_key(items, key):
+    result_list = []
+    for item in items:
+        result_list.append(item[key])
 
+    return result_list
 
 
 # a = format_date_source_0('Apr 6  7, 2018')
