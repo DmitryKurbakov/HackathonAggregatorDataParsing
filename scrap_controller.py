@@ -13,3 +13,4 @@ dbtools.set_geocode()
 type_definition.define_types()
 
 dbtools.server.stop()
+

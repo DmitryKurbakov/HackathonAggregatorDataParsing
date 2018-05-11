@@ -141,3 +141,25 @@ def set_areas_for_document(id, areas):
         print('Mongo reconnect...')
         time.sleep(30)
         server.restart()
+
+def get_type_and_keywords():
+    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
+    db = client[api.MONGO_DB]
+    db_types = db.types
+
+    types = []
+    keywords = []
+
+    doc = db_types.find({})
+
+    for it in doc:
+        print("Types from database: " + str(it.keys()))
+        types = list(it.keys())
+        types.remove('_id')
+
+        for t in types:
+            keywords.append(it.get(t))
+    i = 0
+    return {
+        'types': types, 'keywords': keywords
+    }

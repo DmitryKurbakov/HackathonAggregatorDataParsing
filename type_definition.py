@@ -9,8 +9,8 @@ def define_types():
     text_list = helpers.get_list_by_list_object_key(items, 'text')
     ids = helpers.get_list_by_list_object_key(items, 'id')
 
-    types = dictionaries.keywords_in_type[0]
-    types_keywords = dictionaries.keywords_in_type[1]
+    types = dbtools.get_type_and_keywords()['types']
+    types_keywords = dbtools.get_type_and_keywords()['keywords']
 
     for text in text_list:
         areas = []
