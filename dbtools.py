@@ -142,6 +142,7 @@ def set_areas_for_document(id, areas):
         time.sleep(30)
         server.restart()
 
+
 def get_type_and_keywords():
     client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
     db = client[api.MONGO_DB]
@@ -159,7 +160,6 @@ def get_type_and_keywords():
 
         for t in types:
             keywords.append(it.get(t))
-    i = 0
     return {
         'types': types, 'keywords': keywords
     }
