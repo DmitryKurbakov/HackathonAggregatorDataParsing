@@ -124,6 +124,48 @@ def format_date_and_location_source3(t):
                     'location': match2.group(3)
                 }
 
+
+def format_date_source_4(t):
+
+    match0 = re.compile('(\d+) ([а-яА-Я]+) (\d+)').match(t)
+    match1 = re.compile('(\d+) -  (\d+) ([а-яА-Я]+) (\d+)').match(t)
+    match2 = re.compile('(\d+) - (\d+) ([а-яА-Я]+) (\d+)').match(t)
+
+    if t == '':
+        return t
+    for m in month_numbers.keys():
+        if match0:
+            if m in match0.group(2).lower():
+                s = '{}-{}-{}-{}-{}-{}'.format(
+                    '2018',
+                    get_two_digit_month(get_month_number(match0.group(2))),
+                    get_two_digit_day(match0.group(1)),
+                    '2018',
+                    get_two_digit_month(get_month_number(match0.group(2))),
+                    get_two_digit_day(match0.group(1)))
+                return s
+        if match1:
+            if m in match1.group(3).lower():
+                s = '{}-{}-{}-{}-{}-{}'.format(
+                    '2018',
+                    get_two_digit_month(get_month_number(match1.group(3))),
+                    get_two_digit_day(match1.group(1)),
+                    '2018',
+                    get_two_digit_month(get_month_number(match1.group(3))),
+                    get_two_digit_day(match1.group(2)))
+                return s
+        if match2:
+            if m in match2.group(3).lower():
+                s = '{}-{}-{}-{}-{}-{}'.format(
+                    '2018',
+                    get_two_digit_month(get_month_number(match2.group(3))),
+                    get_two_digit_day(match2.group(1)),
+                    '2018',
+                    get_two_digit_month(get_month_number(match2.group(3))),
+                    get_two_digit_day(match2.group(2)))
+                return s
+
+
 def get_month_number(m):
     return month_numbers.get(m.lower(), '')
 
@@ -147,9 +189,3 @@ def get_list_by_list_object_key(items, key):
 
     return result_list
 
-
-# a = format_date_source_0('Apr 6  7, 2018')
-# b = format_date_source_0('Apr 13  14, 2018')
-# c = format_date_source_0('Apr 7, 2018')
-# d = format_date_source_0('Mar 19  Jun 1, 2018')
-# i = 0

@@ -323,3 +323,73 @@ class DataParsing:
         dbtools.insert_data(data)
 
         print("transferred data to database handler")
+
+    def scrap_source4(self):
+
+        self.driver.get('https://it-events.com/hackathons?type=upcoming')
+
+        html = self.driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+
+        rows = list(soup.select("body > div.container > div:nth-of-type(2) > div.col-10 > section > div"))
+
+        print("got rows")
+
+        titles = []
+        locations = []
+        preview = []
+        # descriptions = []
+        time = []
+        refs = []
+        source = "https://it-events.com"
+
+        for row in rows:
+            temp_title = row.find("a", {"class": "event-list-item__title"})
+            temp_location = row.find("div", {"class": "event-list-item__info event-list-item__info_location"})
+            temp_preview = ""
+            temp_time = row.find("div", {"class": "event-list-item__info"})
+
+            temp_ref = source + "/events" + row.find("a", href=True)['href'].encode('ascii', 'ignore').decode('utf-8')
+
+            if hasattr(temp_title, "text"):
+                titles.append(temp_title.text.strip())
+            else:
+                titles.append("")
+
+            if hasattr(temp_location, "text"):
+                locations.append(temp_location.text.strip())
+            else:
+                locations.append("")
+
+            if hasattr(temp_preview, "text"):
+                preview.append(temp_preview.text.strip().encode('ascii', 'ignore'))
+            else:
+                preview.append("")
+
+            if hasattr(temp_time, "text"):
+                time.append(helpers.format_date_source_4(temp_time.text.strip()))
+            else:
+                time.append("")
+
+            refs.append(temp_ref)
+
+        print("got data")
+
+        i = 0
+        data = [None] * len(titles)
+
+        while i < len(data):
+            data[i] = Object()
+            data[i].title = titles[i]
+            data[i].location = locations[i]
+            data[i].preview = preview[i]
+            data[i].time = time[i]
+            data[i].ref = refs[i]
+            data[i].area = ""
+            data[i].source = source
+
+            i = i + 1
+
+        dbtools.insert_data(data)
+
+        print("transferred data to database handler")
