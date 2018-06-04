@@ -96,9 +96,10 @@ class DataParsing:
         print("transferred data to database handler")
 
     def scrap_source1(self):
-        self.read_info("https://mlh.io/seasons/na-2018/events")
-        self.read_info("https://mlh.io/seasons/eu-2018/events")
-        self.read_info("https://mlh.io/seasons/localhost-2018/events")
+        self.read_info("https://mlh.io/seasons/na-2019/events")
+        # self.read_info("https://mlh.io/seasons/na-2018/events")
+        # self.read_info("https://mlh.io/seasons/eu-2018/events")
+        # self.read_info("https://mlh.io/seasons/localhost-2018/events")
 
     def read_info(self, url):
 

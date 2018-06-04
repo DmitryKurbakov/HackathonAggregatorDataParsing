@@ -25,10 +25,10 @@ dp = DataParsing()
 dp.scrap_source0()
 dp.scrap_source1()
 dp.scrap_source2()
-dp.scrap_source3()
+#dp.scrap_source3()
 dp.scrap_source4()
 dbtools.set_geocode()
-
+dbtools.set_country_geocode()
 type_definition.define_types()
 
 dbtools.server.stop()

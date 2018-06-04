@@ -27,7 +27,6 @@ connect(
 
 
 class Source(Document):
-
     title = StringField(required=True)
     location = StringField()
     preview = StringField()
@@ -36,10 +35,10 @@ class Source(Document):
     area = ListField()
     source = StringField()
     geocode = StringField()
+    country_geocode = StringField()
 
 
 def insert_data(data):
-
     client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
     db = client[api.MONGO_DB]
 
@@ -47,7 +46,7 @@ def insert_data(data):
 
     i = 0
 
-    while i<len(data):
+    while i < len(data):
 
         f = sources.find_one({"title": data[i].title})
         if not f:
@@ -64,7 +63,6 @@ def insert_data(data):
 
 
 def set_geocode():
-
     client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
     db = client[api.MONGO_DB]
 
@@ -79,11 +77,36 @@ def set_geocode():
         try:
             temp = doc.get("location")
             if temp != "" and (doc.get('geocode') == 1.0 or doc.get('geocode') == ""):
-
                 geo = gmaps.geocode(re.sub(r'\s+', ' ', doc.get("location")))
 
                 print(geo)
                 sources.update({"_id": doc.get("_id")}, {"$set": {'geocode': geo}})
+        except:
+            continue
+
+
+def set_country_geocode():
+    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
+    db = client[api.MONGO_DB]
+
+    sources = db.source
+
+    gmaps = googlemaps.Client(key=api.gkey)
+
+    cursor = sources.find({})
+    for doc in cursor:
+        if not doc.get("country_geocode"):
+            sources.update({"_id": doc.get("_id")}, {"$set": {'country_geocode': ""}})
+        try:
+            if doc.get('country_geocode') == "":
+                components = doc.get('geocode')[0]['address_components']
+                for component in components:
+                    for component_type in component['types']:
+                        if component_type == 'country':
+                            geo = gmaps.geocode(component['long_name'])
+
+                            print(geo)
+                            sources.update({"_id": doc.get("_id")}, {"$set": {'country_geocode': geo}})
         except:
             continue
 
@@ -131,7 +154,8 @@ def get_text_for_type_definition():
 
 def set_areas_for_document(id, areas):
     try:
-        client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
+        client = pymongo.MongoClient('localhost',
+                                     server.local_bind_port)  # server.local_bind_port is assigned local port
         db = client[api.MONGO_DB]
         sources = db.source
 
